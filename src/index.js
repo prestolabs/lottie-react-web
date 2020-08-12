@@ -1,31 +1,31 @@
-import React from "react";
-import PropTypes from "prop-types";
-import lottie from "lottie-web";
-import lottieApi from "lottie-api/dist/lottie_api";
+import React from 'react';
+import PropTypes from 'prop-types';
+import lottie from 'lottie-web';
+import lottieApi from 'lottie-api/dist/lottie_api';
 
 export default class Lottie extends React.Component {
   componentDidMount() {
-    const { options, eventListeners } = this.props;
+    const {
+      options,
+      eventListeners,
+    } = this.props;
 
     const {
       loop,
       autoplay,
       animationData,
-      path,
-      renderer = "svg",
       rendererSettings,
-      assetsPath,
+      segments,
     } = options;
 
     this.options = {
       container: this.el,
-      path,
-      renderer,
+      renderer: 'svg',
       loop: loop !== false,
       autoplay: autoplay !== false,
+      segments: segments !== false,
       animationData,
       rendererSettings,
-      assetsPath,
     };
 
     this.options = { ...this.options, ...options };
@@ -36,43 +36,23 @@ export default class Lottie extends React.Component {
     this.animApi = lottieApi.createAnimationApi(this.anim);
     this.registerEvents(eventListeners);
     this.setAnimationControl();
-
-    if (this.props.isStopped) {
-      this.stops();
-    } else if (this.props.segments) {
-      this.playSegments(true);
-    } else {
-      this.play();
-    }
-  }
-
-  componentWillUpdate(nextProps /* , nextState */) {
-    /* Recreate the animation handle if the data is changed */
-    if (this.options.animationData !== nextProps.options.animationData) {
-      this.deRegisterEvents(this.props.eventListeners);
-      this.destroy();
-      this.options = { ...this.options, ...nextProps.options };
-      this.anim = lottie.loadAnimation(this.options);
-      this.animApi = lottieApi.createAnimationApi(this.anim);
-      this.registerEvents(nextProps.eventListeners);
-    }
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.options.loop !== undefined) {
-      this.anim.loop = this.props.options.loop;
+    if (prevProps.options.animationData !== this.props.options.animationData) {
+      this.deRegisterEvents(prevProps.eventListeners);
+      this.destroy();
+      this.options = { ...prevProps.options, ...this.props.options };
+      this.anim = lottie.loadAnimation(this.options);
+      this.animApi = lottieApi.createAnimationApi(this.anim);
+      this.registerEvents(this.props.eventListeners);
     }
 
     if (this.props.isStopped) {
       this.stop();
     } else if (this.props.segments) {
-      if (
-        JSON.stringify(this.props.segments) ===
-        JSON.stringify(prevProps.segments)
-      ) {
-        return;
-      }
-      this.playSegments(this.props.forceSegments);
+      const shouldForce = !!this.props.forceSegments;
+      this.playSegments(shouldForce);
     } else {
       this.play();
     }
@@ -155,7 +135,6 @@ export default class Lottie extends React.Component {
       ariaRole,
       ariaLabel,
       title,
-      tabIndex,
     } = this.props;
 
     const getSize = (initial) => {
@@ -190,7 +169,7 @@ export default class Lottie extends React.Component {
         title={title}
         role={ariaRole}
         aria-label={ariaLabel}
-        tabIndex={tabIndex}
+        tabIndex="0"
       />
     );
   }
@@ -211,7 +190,6 @@ Lottie.propTypes = {
   ariaLabel: PropTypes.string,
   title: PropTypes.string,
   style: PropTypes.string,
-  tabIndex: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 Lottie.defaultProps = {
@@ -222,5 +200,4 @@ Lottie.defaultProps = {
   ariaRole: 'button',
   ariaLabel: 'animation',
   title: '',
-  tabIndex: 0,
 };

@@ -5,7 +5,7 @@
   "types": "./index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/felippenardi/lottie-react-web"
+    "url": "https://github.com/prestolabs/lottie-react-web"
   },
   "license": "MIT",
   "scripts": {
